@@ -1,7 +1,3 @@
-#!/usr/bin/env python
-# coding: utf-8
-
-# In[730]:
 
 
 from sklearn.linear_model import LogisticRegression
@@ -17,25 +13,11 @@ from sklearn.metrics import confusion_matrix
 from sklearn.model_selection import train_test_split
 import numpy as np
 import pandas as pd
-import warnings 
 from sklearn.pipeline import Pipeline
 from sklearn.preprocessing import MinMaxScaler
 from sklearn.decomposition import PCA
+from sklearn.preprocessing import LabelEncoder
 
-
-# In[731]:
-
-
-warnings.filterwarnings("ignore")
-
-
-# In[ ]:
-
-
-
-
-
-# In[732]:
 
 
 train=pd.read_csv("train.csv")
@@ -45,20 +27,17 @@ del test["PassengerId"]
 train['Age'].fillna((train['Age'].mean()), inplace=True)
 
 
-# In[733]:
 
 
 train["Sex_num"]=train.Sex.apply (lambda x:1 if x=="male" else 0)
 train.head(10)
 
 
-# In[ ]:
 
 
 
 
 
-# In[734]:
 
 
 train.dropna(subset = ["Survived"], inplace=True)
@@ -66,13 +45,11 @@ train["Name_title"]=train.Name.apply (lambda x:x.split(",")[1].split(".")[0].str
 train.head()
 
 
-# In[735]:
 
 
 print(pd.pivot_table(train, index = 'Survived', columns = 'Name_title', values = 'Ticket' ,aggfunc ='count'))
 
 
-# In[736]:
 
 
 most=['Miss','Lady','Mrs','Ms']
@@ -80,63 +57,54 @@ train["title_num"]=train.Name_title.apply (lambda x:1 if str(x) in most else 0)
 train.head(10)
 
 
-# In[737]:
 
 
 train["ticket_num"]=train.Ticket.apply (lambda x:1 if x.isdigit() else 0)
 train.head()
 
 
-# In[738]:
 
 
 print(test.isnull().sum())
 
 
-# In[739]:
 
 
 test['Age'].fillna((test['Age'].mean()), inplace=True)
 
 
-# In[740]:
 
 
 print(train.isnull().sum())
 
 
-# In[741]:
 
 
 test['Fare'].fillna((train['Fare'].mean()), inplace=True)
 
 
-# In[742]:
 
 
 train['Embarked'].fillna((train['Embarked'].mode()), inplace=True)
 
 
-# In[743]:
 
 
 import seaborn as sns 
 sns.barplot(train["Embarked"].value_counts().index,train["Embarked"].value_counts())
 
 
-# In[744]:
+
 
 
 train.Embarked = train.Embarked.fillna('Q')
 
 
-# In[745]:
 
 
 print(test.isnull().sum())
 
 
-# In[746]:
 
 
 most=['Miss','Lady','Dr','Mrs']
@@ -146,51 +114,43 @@ test["title_num"]=test.Name_title.apply (lambda x:1 if str(x) in most else 0)
 test["ticket_num"]=test.Ticket.apply (lambda x:1 if x.isdigit() else 0)
 
 
-# In[747]:
 
 
 train.head()
 
 
-# In[748]:
 
 
 test.head(10)
 
 
-# In[749]:
 
 
 test["num_cabins"]=test.Cabin.apply (lambda x:len(str(x).split(' ')))
 train["num_cabins"]=train.Cabin.apply (lambda x:len(str(x).split(' ')))
 
 
-# In[ ]:
 
 
 
 
 
-# In[750]:
 
 
 del train["Ticket"]
 del test["Ticket"]
 
 
-# In[751]:
 
 
 test.head()
 
 
-# In[752]:
 
 
 test.head()
 
 
-# In[753]:
 
 
 target="Survived"
@@ -200,27 +160,23 @@ del test['Name']
 del test['Cabin']
 
 
-# In[754]:
 
 
 x=train.drop(target,1)
 y=train[target]
 
 
-# In[755]:
 
 
 objs=x.select_dtypes(include=["object"])
 not_objs=x.select_dtypes(exclude=['object'])
 
 
-# In[756]:
 
 
-from sklearn.preprocessing import LabelEncoder
 
 
-# In[757]:
+
 
 
 la=LabelEncoder()
@@ -228,20 +184,17 @@ for x in range (objs.shape[1]):
     objs.iloc[:,x]=la.fit_transform( objs.iloc[:,x])
 
 
-# In[758]:
 
 
 x=np.concatenate([objs,not_objs],axis=1)
 x_train,x_test,y_train,y_test=train_test_split(x,y,test_size=0.25)
 
 
-# In[ ]:
 
 
 
 
 
-# In[759]:
 
 
 x_pre=test
@@ -254,7 +207,6 @@ x_pre=np.concatenate([objs,not_objs],axis=1)
 test.head()
 
 
-# In[760]:
 
 
 Lpip=Pipeline([('myscaler',MinMaxScaler()),('mypca',PCA(n_components=3)),('logistic_classifier',LogisticRegression())])
@@ -264,7 +216,6 @@ Kpip=Pipeline([('myscaler',MinMaxScaler()),('mypca',PCA(n_components=3)),('logis
 Xpip=Pipeline([('myscaler',MinMaxScaler()),('mypca',PCA(n_components=3)),('logistic_classifier',XGBClassifier())])
 
 
-# In[761]:
 
 
 def testing(x_train,x_test,y_train,y_test):
@@ -294,7 +245,6 @@ def testing(x_train,x_test,y_train,y_test):
     
 
 
-# In[762]:
 
 
 model=testing(x_train,x_test,y_train,y_test)
@@ -302,13 +252,11 @@ model.fit(x_train,y_train)
 prediction=model.predict(x_pre)
 
 
-# In[763]:
 
 
 res=pd.read_csv("gender_submission.csv")
 
 
-# In[764]:
 
 
 for x in range(len(prediction)):
@@ -317,7 +265,6 @@ for x in range(len(prediction)):
 res.to_csv("result.csv", index=False)
 
 
-# In[ ]:
 
 
 
